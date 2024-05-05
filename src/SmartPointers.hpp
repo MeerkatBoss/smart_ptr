@@ -20,9 +20,6 @@
 
 namespace my_stl {
 
-template <typename T>
-class WeakPtr;
-
 namespace detail {
 
 class ControlBlockBase {
@@ -94,6 +91,9 @@ template <typename T>
 struct DefaultDelete<T[]> {
   void operator()(T* data) const { delete[] data; }
 };
+
+template <typename T>
+class WeakPtr;
 
 template <typename T>
 class SharedPtr final {
@@ -193,7 +193,9 @@ class SharedPtr final {
 };
 
 template <typename T, typename... Ts>
-SharedPtr<T> MakeShared(Ts&&... args);
+SharedPtr<T> MakeShared(Ts&&... args) {
+  return AllocateShared<T>(std::allocator<T>(), std::forward<Ts>(args)...);
+}
 
 template <typename T, typename Alloc, typename... Ts>
 SharedPtr<T> AllocateShared(const Alloc& alloc, Ts&&... args);
