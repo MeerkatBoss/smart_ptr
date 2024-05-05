@@ -1,5 +1,5 @@
 /**
- * @file SharedPtr.hpp
+ * @file SmartPointers.hpp
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
  *
  * @brief
@@ -9,8 +9,8 @@
  *
  * @copyright Copyright MeerkatBoss (c) 2024
  */
-#ifndef __SHARED_PTR_HPP
-#define __SHARED_PTR_HPP
+#ifndef __SMART_POINTERS_HPP
+#define __SMART_POINTERS_HPP
 
 #include <cassert>
 #include <concepts>
@@ -175,4 +175,4 @@ class WeakPtr final
 
 }  // namespace my_stl
 
-#endif /* SharedPtr.hpp */
+#endif /* SmartPointers.hpp */
