@@ -1,5 +1,5 @@
-# CC:=clang++-18
-CC:=g++
+CC:=clang++-18
+# CC:=g++
 
 CWARN:=-Wall -Wextra -Weffc++ -Wcast-align -Wcast-qual -Wchar-subscripts\
 -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral\
