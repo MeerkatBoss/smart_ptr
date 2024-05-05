@@ -1,6 +1,6 @@
 ---
 
-Checks: '-*,clang-diagnostic-*,clang-analyzer-*,readability-*, -readability-use-anyofallof, clang-analyzer-*, bugfree-*'
+Checks: '-*,readability-*'
 
 WarningsAsErrors: '*'
 
@@ -24,7 +24,7 @@ CheckOptions:
   - key: readability-identifier-naming.MemberCase
     value: 'lower_case'
   - key: readability-identifier-naming.MethodCase
-    value: 'CamelCase'
+    value: 'lower_case'
   - key: readability-identifier-naming.NamespaceCase
     value: 'lower_case'
   - key: readability-identifier-naming.ParameterCase
@@ -36,7 +36,7 @@ CheckOptions:
   - key: readability-identifier-naming.StructCase
     value: 'CamelCase'
   - key: readability-identifier-naming.TypeAliasCase
-    value: 'CamelCase'
+    value: 'lower_case'
   - key: readability-identifier-naming.TypedefCase
     value: 'CamelCase'
   - key: readability-identifier-naming.TypeTemplateParameterCase
@@ -44,16 +44,14 @@ CheckOptions:
   - key: readability-identifier-naming.UnionCase
     value: 'CamelCase'
   - key: readability-identifier-naming.ValueTemplateParameterCase
-    value: 'lower_case'
+    value: 'CamelCase'
   - key: readability-identifier-naming.VariableCase
     value: 'lower_case'
   - key: readability-magic-numbers.IgnoredIntegerValues
-    value: '1;2'
+    value: '1;2;3;4'
   - key: readability-simplify-boolean-expr.ChainedConditionalReturn
     value: '1'
   - key: readability-simplify-boolean-expr.ChainedConditionalAssignment
     value: '1'
-  - key: readability-identifier-length.MinimumParameterNameLength
-    value: '1'
-  - key: readability-identifier-length.MinimumVariableNameLength
-    value: '1'
+  - key: readability-identifier-naming.TypeTemplateParameterIgnoredRegexp
+    value: 'expr-type'
