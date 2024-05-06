@@ -32,9 +32,7 @@ class ControlBlockBase {
   ControlBlockBase(ControlBlockBase&&) = delete;
   ControlBlockBase& operator=(ControlBlockBase&&) = delete;
 
-  void add_strong_link() {
-    ++strong_count_;
-  }
+  void add_strong_link() { ++strong_count_; }
   void add_weak_link() { ++weak_count_; }
 
   void remove_strong_link() {
@@ -66,8 +64,9 @@ class ControlBlockBase {
   }
 
  protected:
-  ControlBlockBase(void* data) : data_(data) {
-  }
+  ControlBlockBase(void* data) : data_(data) {}
+
+  void set_data(void* data) { data_ = data; }
 
   virtual void delete_data(void) = 0;
   virtual void delete_block(void) = 0;
@@ -97,6 +96,17 @@ class WeakPtr;
 
 template <typename T>
 class SharedPtr final {
+  template <typename U>
+  friend class SharedPtr;
+
+  template <typename U, typename... Ts>
+  friend SharedPtr<U> MakeShared(Ts&&... args);
+
+  template <typename U, typename Alloc, typename... Ts>
+  friend SharedPtr<U> AllocateShared(const Alloc& alloc, Ts&&... args);
+
+  friend class WeakPtr<T>;
+
  public:
   SharedPtr() : ctl_block_{nullptr} {}
   SharedPtr(std::nullptr_t) : SharedPtr() {}
@@ -104,6 +114,9 @@ class SharedPtr final {
   // Copyable
   SharedPtr(const SharedPtr& other) : SharedPtr(other.ctl_block_) {}
   SharedPtr& operator=(const SharedPtr& other) {
+    if (this == &other) {
+      return *this;
+    }
     reset();
     ctl_block_ = other.ctl_block_;
     ctl_block_->add_strong_link();
@@ -111,8 +124,11 @@ class SharedPtr final {
   }
 
   // Movable
-  SharedPtr(SharedPtr&& other) : SharedPtr(other.ctl_block_) { reset(); }
+  SharedPtr(SharedPtr&& other) : SharedPtr(other.ctl_block_) { other.reset(); }
   SharedPtr& operator=(SharedPtr&& other) {
+    if (this == &other) {
+      return *this;
+    }
     reset();
     std::swap(ctl_block_, other.ctl_block_);
     return *this;
@@ -175,14 +191,6 @@ class SharedPtr final {
   T* operator->() const { return &**this; }
 
  private:
-  template <typename U, typename... Ts>
-  friend SharedPtr<U> MakeShared(Ts&&... args);
-
-  template <typename U, typename Alloc, typename... Ts>
-  friend SharedPtr<U> AllocateShared(const Alloc& alloc, Ts&&... args);
-
-  friend class WeakPtr<T>;
-
   SharedPtr(detail::ControlBlockBase* ctl_block) : ctl_block_(ctl_block) {
     if (ctl_block_ != nullptr) {
       ctl_block_->add_strong_link();
@@ -192,13 +200,13 @@ class SharedPtr final {
   detail::ControlBlockBase* ctl_block_;
 };
 
+template <typename T, typename Alloc, typename... Ts>
+SharedPtr<T> AllocateShared(const Alloc& alloc, Ts&&... args);
+
 template <typename T, typename... Ts>
 SharedPtr<T> MakeShared(Ts&&... args) {
   return AllocateShared<T>(std::allocator<T>(), std::forward<Ts>(args)...);
 }
-
-template <typename T, typename Alloc, typename... Ts>
-SharedPtr<T> AllocateShared(const Alloc& alloc, Ts&&... args);
 
 template <typename T>
 class WeakPtr final {

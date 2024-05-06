@@ -6,12 +6,10 @@ using namespace my_stl;
 
 int main()
 {
-  SharedPtr<int> ptr(new int{1});
-  *ptr = 3;
-  SharedPtr<int> copy = ptr;
-  SharedPtr<int> copy2;
-  copy = ptr;
+  int* raw = new int(10);
+  SharedPtr<int> ptr(raw);
+
+  SharedPtr<int> ptr2(std::move(ptr));
 
   std::cout << *ptr << ' ' << ptr.use_count() << '\n';
-  return 0;
 }

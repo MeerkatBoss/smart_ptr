@@ -1,4 +1,4 @@
-CC:=clang++-18
+CC:=clang++-13
 # CC:=g++
 
 CWARN:=-Wall -Wextra -Weffc++ -Wcast-align -Wcast-qual -Wchar-subscripts\
@@ -18,7 +18,7 @@ CDEBUG:=-D _DEBUG -ggdb -fcheck-new -fsized-deallocation -fstack-protector\
 
 CMACHINE:=# -mavx512f -march=native -mtune=native
 
-CFLAGS:=-std=c++23 -fPIE $(CMACHINE) $(CWARN)
+CFLAGS:=-std=c++20 -fPIE $(CMACHINE) $(CWARN)
 BUILDTYPE?=Debug
 
 ifeq ($(BUILDTYPE), Release)

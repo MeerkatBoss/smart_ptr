@@ -23,7 +23,7 @@ namespace detail {
 
 template <typename T, typename Deleter, typename Alloc>
 class PtrControlBlock final : public ControlBlockBase {
-  using block_alloc =
+  using block_alloc = typename
       std::allocator_traits<Alloc>::template rebind_alloc<PtrControlBlock>;
   using block_alloc_traits = std::allocator_traits<block_alloc>;
 
@@ -35,12 +35,14 @@ class PtrControlBlock final : public ControlBlockBase {
 
   static PtrControlBlock* make_block(T* data, Deleter deleter, Alloc alloc) {
     block_alloc blk_alloc(alloc);
-    PtrControlBlock* block = block_alloc_traits::allocate(alloc, 1);
-    block_alloc_traits::construct(block, data, deleter, alloc);
+    PtrControlBlock* block = block_alloc_traits::allocate(blk_alloc, 1);
+    block_alloc_traits::construct(blk_alloc, block, data, deleter, alloc);
+
+    return block;
   }
 
  private:
-  void delete_data(void) override { deleter_(get_data()); }
+  void delete_data(void) override { deleter_(get_data<T>()); }
 
   void delete_block(void) override {
     block_alloc alloc = std::move(alloc_);
@@ -55,24 +57,29 @@ class PtrControlBlock final : public ControlBlockBase {
 
 template <typename T, typename Alloc>
 class ValueControlBlock final : public ControlBlockBase {
-  using block_alloc =
-      std::allocator_traits<Alloc>::template rebind_alloc<PtrControlBlock>;
+  using block_alloc = typename
+      std::allocator_traits<Alloc>::template rebind_alloc<ValueControlBlock>;
   using block_alloc_traits = std::allocator_traits<block_alloc>;
 
  public:
   template <typename... Ts>
   ValueControlBlock(Alloc alloc, Ts... args)
-      : ControlBlockBase(&value),
+      : ControlBlockBase(nullptr),
         value(std::forward<Ts>(args)...),
-        alloc_(alloc) {}
+        alloc_(alloc) {
+    set_data(&value);
+  }
 
-  ~ValueControlBlock() = default;
+  ~ValueControlBlock() {}
 
   template <typename... Ts>
   static ValueControlBlock* make_block(Alloc alloc, Ts... args) {
     block_alloc blk_alloc(alloc);
-    ValueControlBlock* block = block_alloc_traits::allocate(alloc, 1);
-    block_alloc_traits::construct(block, alloc, std::forward<Ts>(args)...);
+    ValueControlBlock* block = block_alloc_traits::allocate(blk_alloc, 1);
+    block_alloc_traits::construct(blk_alloc, block, alloc,
+                                  std::forward<Ts>(args)...);
+
+    return block;
   }
 
  private:
@@ -87,7 +94,7 @@ class ValueControlBlock final : public ControlBlockBase {
 
   union {
     T value;
-    char raw_data[sizeof(T)];  // Prevent automatic destruction
+    char raw_data[sizeof(T)];
   };
   [[no_unique_address]] block_alloc alloc_;
 };
